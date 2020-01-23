@@ -1,0 +1,51 @@
+
+﻿using system;
+
+class main
+{
+    func entry()
+    {
+        system.log("hello world.");
+    }
+}
+
+main.entry();
+
+
+
+class system
+{
+    func log(text, args)
+    {
+        system_call("Pot.Sumi.Log", null, text, args);
+    }
+}
+
+
+
+class main : object
+{
+    func entry(text)
+    {
+         log("input command: {0}", text);
+    }
+}
+
+
+
+func log(text, args)
+{
+    system_call("Pot.Sumi.Log", null, text, args);
+}
+
+
+
+class object
+{
+    func new()
+    {
+        return @this;
+    }
+}
+
+
