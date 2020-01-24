@@ -6,9 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="sumi\" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="pot.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
