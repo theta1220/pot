@@ -1,9 +1,9 @@
 #!/bin/bash
 cd `dirname $0`
-out="$1.so"
+out="$1"
 if [ -z $1 ]; then
-    echo "出力名を入力してください"
-    return
+    echo "出力ファイル名を入力してください"
+    exit 1
 fi
 
 echo "" > ${out}
@@ -14,3 +14,5 @@ for file in `find . -type f -name '*.ss'`; do
     cat ${file} >> ${out}
     echo -e "\n\n" >> ${out}
 done
+
+exit 0
