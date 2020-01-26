@@ -3,6 +3,17 @@
 
 var main = octopus.main.new();
 main.entry("hello");
+// debug.print_block_tree(this);
+
+
+// ./octopus/sumi/extension/debug.ss
+class debug
+{
+    func print_block_tree(block)
+    {
+        system_call("Sumi.Lib.Debug.PrintBlockTree", null, block);
+    }
+}
 
 
 // ./octopus/sumi/extension/array.ss
@@ -120,15 +131,73 @@ extension string
 }
 
 
+// ./octopus/sumi/extension/log.ss
+
+func log(text, args)
+{
+    system_call("Pot.Sumi.Log", null, text, args);
+}
+
+
+// ./octopus/sumi/extension/object.ss
+
+class object
+{
+    func new()
+    {
+        return @this;
+    }
+}
+
+
 // ./octopus/src/main.ss
 
 class octopus
 {
     class main : object
     {
+        var main_state_machine = base.state_machine.new();
+
         func entry(text)
         {
-            log("inputed command: {0}", text);
+            log("command: {0}", text);
+
+            main_state_machine.register(state.title.new());
+            main_state_machine.switch("title");
+        }
+    }
+}
+
+
+// ./octopus/src/state/title/title.ss
+
+class octopus
+{
+    class state
+    {
+        class title : object
+        {
+            var id = "title";
+            
+            func on_state_began()
+            {
+                log("titleに遷移しました");
+            }
+
+            func on_state_end()
+            {
+                log("titleをさりました");
+            }
+
+            func update()
+            {
+                log("titleなう");
+            }
+
+            func new()
+            {
+                return @this;
+            }
         }
     }
 }
@@ -138,21 +207,49 @@ class octopus
 
 
 
-// ./octopus/src/log.ss
+// ./octopus/src/base/state_machine.ss
 
-func log(text, args)
+class octopus
 {
-    system_call("Pot.Sumi.Log", null, text, args);
-}
-
-
-// ./octopus/src/object.ss
-
-class object
-{
-    func new()
+    class base
     {
-        return @this;
+        class state_machine : object
+        {
+            var current = null;
+            var registered_states = [];
+
+            func find_state(id)
+            {
+                foreach(state : registered_states)
+                {
+                    if(state.id == id)
+                    {
+                        return state;
+                    }
+                }
+                return null;
+            }
+
+            func register(state)
+            {
+                registered_states.push(state);
+            }
+
+            func switch(next_id)
+            {
+                if(current != null)
+                {
+                    current.on_state_end();
+                }
+                current = find_state(next_id);
+                current.on_state_began();
+            }
+
+            func update()
+            {
+                current.update();
+            }
+        }
     }
 }
 
