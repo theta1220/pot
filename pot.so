@@ -1,6 +1,6 @@
 
 // ./sumi_src/main.ss
-
+debug.print_block_tree(this);
 var main = octopus.main.new();
 main.entry("hello");
 // debug.print_block_tree(this);
@@ -130,6 +130,16 @@ extension string
     }
 }
 
+class string
+{
+    func format(text, args)
+    {
+        var res = "";
+        system_call("Sumi.Lib.String.Format", res, text, args);
+        return res;
+    }
+}
+
 
 // ./octopus/sumi/extension/log.ss
 
@@ -150,6 +160,27 @@ class object
 }
 
 
+// ./octopus/sumi/extension/error.ss
+
+class error
+{
+    func log(text)
+    {
+        system_call("Sumi.Lib.Debug.Error", null, text, args);
+    }
+
+    func format(text, args)
+    {
+        log(string.format(text, args));
+    }
+
+    func no_impl()
+    {
+        log("未実装の関数です");
+}
+}
+
+
 // ./octopus/src/main.ss
 
 class octopus
@@ -163,7 +194,9 @@ class octopus
             log("command: {0}", text);
 
             main_state_machine.register(state.title.new());
+            main_state_machine.register(state.field.new());
             main_state_machine.switch("title");
+            main_state_machine.switch("field");
         }
     }
 }
@@ -175,7 +208,7 @@ class octopus
 {
     class state
     {
-        class title : object
+        class title : base.state_base
         {
             var id = "title";
             
@@ -193,18 +226,57 @@ class octopus
             {
                 log("titleなう");
             }
-
-            func new()
-            {
-                return @this;
-            }
         }
     }
 }
 
 
+// ./octopus/src/state/title/field.ss
+
+class octopus
+{
+    class state
+    {
+        class field : base.state_base
+        {
+            var id = "field";
+        }
+    }
+}
+
+
+
 // ./octopus/src/system.ss
 
+
+
+// ./octopus/src/base/state_base.ss
+
+class octopus
+{
+    class base
+    {
+        class state_base : object
+        {
+            var id = "none";
+            
+            func on_state_began()
+            {
+                log("{0}に遷移しました", id);
+            }
+
+            func on_state_end()
+            {
+                log("{0}から去りました", id);
+            }
+
+            func update()
+            {
+
+            }
+        }
+    }
+}
 
 
 // ./octopus/src/base/state_machine.ss
@@ -241,6 +313,10 @@ class octopus
                 {
                     current.on_state_end();
                 }
+                else
+                {
+                    log("currentはnullだと思う");
+                }
                 current = find_state(next_id);
                 current.on_state_began();
             }
@@ -248,6 +324,16 @@ class octopus
             func update()
             {
                 current.update();
+            }
+
+            test null_check()
+            {
+                var hoge = state_machine.new();
+                if(hoge == null)
+                {
+                    return false;
+                }
+                return true;
             }
         }
     }
