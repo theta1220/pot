@@ -1,3 +1,14 @@
 
 var main = octopus.main.new();
-main.entry("hello");
+
+while(true)
+{
+    var command = "";
+    log("コマンドを にゅうりょく してください");
+    system_call("Pot.Sumi.Input", command);
+    if(command == "exit")
+    {
+        break;
+    }
+    main.entry(command);
+}

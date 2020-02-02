@@ -2,7 +2,18 @@
 // ./sumi_src/main.ss
 
 var main = octopus.main.new();
-main.entry("hello");
+
+while(true)
+{
+    var command = "";
+    log("コマンドを にゅうりょく してください");
+    system_call("Pot.Sumi.Input", command);
+    if(command == "exit")
+    {
+        break;
+    }
+    main.entry(command);
+}
 
 
 // ./octopus/sumi/extension/debug.ss
@@ -93,7 +104,7 @@ extension string
         var buf = "";
         foreach(c : this.to_array())
         {
-            if(c == " ")
+            if(c == sep)
             {
                 res.push(buf);
                 buf = "";
@@ -127,6 +138,45 @@ extension string
         }
         return true;
     }
+
+    func split_once(sep)
+    {
+        var res = [];
+        var buf = "";
+        var read_num = 1;
+
+        foreach(c : this.to_array())
+        {
+            if((read_num > res.len()) && (c == sep))
+            {
+                res.push(buf);
+                buf = "";
+                continue;
+            }
+            buf = buf + c;
+        }
+        if(buf != "")
+        {
+            res.push(buf);
+        }
+        return res;
+    }
+
+    test split_once()
+    {
+        var text = "hoge foo bar";
+        var arr = text.split_once(" ");
+
+        if(arr[0] != "hoge")
+        {
+            return false;
+        }
+        if(arr[1] != "foo bar")
+        {
+            return false;
+        }
+        return true;
+    }
 }
 
 class string
@@ -145,6 +195,14 @@ class string
 func log(text, args)
 {
     system_call("Pot.Sumi.Log", null, text, args);
+}
+
+func assert(condition, text, args)
+{
+    if(condition == false)
+    {
+        error.format(text, args);
+    }
 }
 
 
@@ -180,6 +238,50 @@ class error
 }
 
 
+// ./octopus/src/command_repo.ss
+
+class octopus
+{
+    class command_repo : object
+    {
+        var commands = [];
+
+        func register(command)
+        {
+            commands.push(command);
+        }
+
+        func find_command(name)
+        {
+            foreach(command : commands)
+            {
+                if(command.name == name)
+                {
+                    return command;
+                }
+            }
+            return null;
+        }
+
+        test find_command()
+        {
+            var repo = command_repo.new();
+            repo.register(command.echo.new());
+
+            if(repo.find_command("hoge") != null)
+            {
+                return false;
+            }
+            if(repo.find_command("echo") == null)
+            {
+                return false;
+            }
+            return true;
+        }
+    }
+}
+
+
 // ./octopus/src/main.ss
 
 class octopus
@@ -195,23 +297,41 @@ class octopus
 
         var state_ids = state_ids.new();
         var state_machine = base.state_machine.new();
+        var command_repo = command_repo.new();
 
         func new()
         {
             var instance = @this;
+            
+            // ステート
             instance.state_machine.register(state.title.new(instance.state_ids.title));
             instance.state_machine.register(state.field.new(instance.state_ids.field));
             instance.state_machine.register(state.battle.new(instance.state_ids.battle));
+
+            // コマンド
+            instance.command_repo.register(command.echo.new());
+
             return instance;
         }
 
         func entry(text)
         {
             log("command: {0}", text);
-            state_machine.switch(state_ids.title);
-            state_machine.switch(state_ids.field);
-            state_machine.switch(state_ids.battle);
-            state_machine.switch(state_ids.title);
+
+            var split = text.split_once(" ");
+            var command_name = split[0];
+            var command = command_repo.find_command(command_name);
+            if(command == null)
+            {
+                log("コマンドが みつかりませんでした:{0}", command_name);
+                return;
+            }
+            var arg_text = "";
+            if(split.len() > 1)
+            {
+                arg_text = split[1];
+            }
+            command.execute(arg_text);
         }
     }
 }
@@ -278,6 +398,30 @@ class octopus
 
 
 
+// ./octopus/src/command/echo.ss
+
+class octopus
+{
+    class command
+    {
+        class echo : base.command
+        {
+            func new()
+            {
+                var instance = @this;
+                instance.name = "echo";
+                return instance;
+            }
+
+            func execute(arg_text)
+            {
+                log("[echo]:{0}", arg_text);
+            }
+        }
+    }
+}
+
+
 // ./octopus/src/base/state.ss
 
 class octopus
@@ -308,6 +452,25 @@ class octopus
             func update()
             {
 
+            }
+        }
+    }
+}
+
+
+// ./octopus/src/base/command.ss
+
+class octopus
+{
+    class base
+    {
+        class command
+        {
+            var name = "";
+
+            func execute(arg_text)
+            {
+                error.no_impl();
             }
         }
     }
