@@ -1,9 +1,8 @@
 
 // ./sumi_src/main.ss
-debug.print_block_tree(this);
+
 var main = octopus.main.new();
 main.entry("hello");
-// debug.print_block_tree(this);
 
 
 // ./octopus/sumi/extension/debug.ss
@@ -177,7 +176,7 @@ class error
     func no_impl()
     {
         log("未実装の関数です");
-}
+    }
 }
 
 
@@ -187,16 +186,46 @@ class octopus
 {
     class main : object
     {
-        var main_state_machine = base.state_machine.new();
+        class state_ids : object
+        {
+            var title = 1;
+            var field = 2;
+            var battle = 3;
+        }
+
+        var state_ids = state_ids.new();
+        var state_machine = base.state_machine.new();
+
+        func new()
+        {
+            var instance = @this;
+            instance.state_machine.register(state.title.new(instance.state_ids.title));
+            instance.state_machine.register(state.field.new(instance.state_ids.field));
+            instance.state_machine.register(state.battle.new(instance.state_ids.battle));
+            return instance;
+        }
 
         func entry(text)
         {
             log("command: {0}", text);
+            state_machine.switch(state_ids.title);
+            state_machine.switch(state_ids.field);
+            state_machine.switch(state_ids.battle);
+            state_machine.switch(state_ids.title);
+        }
+    }
+}
 
-            main_state_machine.register(state.title.new());
-            main_state_machine.register(state.field.new());
-            main_state_machine.switch("title");
-            main_state_machine.switch("field");
+
+// ./octopus/src/state/title/battle.ss
+
+class octopus
+{
+    class state
+    {
+        class battle : base.state
+        {
+            
         }
     }
 }
@@ -208,13 +237,13 @@ class octopus
 {
     class state
     {
-        class title : base.state_base
+        class title : base.state
         {
-            var id = "title";
+            var state_machine = base.state_machine.new();
             
             func on_state_began()
             {
-                log("titleに遷移しました");
+                log("titleに遷移しましたん");
             }
 
             func on_state_end()
@@ -237,9 +266,8 @@ class octopus
 {
     class state
     {
-        class field : base.state_base
+        class field : base.state
         {
-            var id = "field";
         }
     }
 }
@@ -250,15 +278,22 @@ class octopus
 
 
 
-// ./octopus/src/base/state_base.ss
+// ./octopus/src/base/state.ss
 
 class octopus
 {
     class base
     {
-        class state_base : object
+        class state : object
         {
-            var id = "none";
+            var id = null;
+
+            func new(id)
+            {
+                var instance = @this;
+                instance.id = id;
+                return instance;
+            }
             
             func on_state_began()
             {
@@ -313,10 +348,6 @@ class octopus
                 {
                     current.on_state_end();
                 }
-                else
-                {
-                    log("currentはnullだと思う");
-                }
                 current = find_state(next_id);
                 current.on_state_began();
             }
@@ -324,16 +355,6 @@ class octopus
             func update()
             {
                 current.update();
-            }
-
-            test null_check()
-            {
-                var hoge = state_machine.new();
-                if(hoge == null)
-                {
-                    return false;
-                }
-                return true;
             }
         }
     }
