@@ -4,7 +4,7 @@ var main = octopus.main.new();
 while(true)
 {
     var command = "";
-    log("コマンドを にゅうりょく してください");
+    log.info("コマンドを にゅうりょく してください");
     system_call("Pot.Sumi.Input", command);
     if(command == "exit")
     {

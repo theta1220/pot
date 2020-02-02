@@ -13,9 +13,16 @@ namespace Pot
             var loader = new Loader();
             var main = loader.Load("pot.so");
 
-            while (main.Execute())
+            try
             {
-
+                while (main.Execute()) { }
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("例外をキャッチしました");
+                Console.WriteLine(e.Message);
+                Console.ResetColor();
             }
         }
     }

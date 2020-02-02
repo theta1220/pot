@@ -6,7 +6,7 @@ var main = octopus.main.new();
 while(true)
 {
     var command = "";
-    log("コマンドを にゅうりょく してください");
+    log.info("コマンドを にゅうりょく してください");
     system_call("Pot.Sumi.Input", command);
     if(command == "exit")
     {
@@ -192,16 +192,41 @@ class string
 
 // ./octopus/sumi/extension/log.ss
 
-func log(text, args)
+class log
 {
-    system_call("Pot.Sumi.Log", null, text, args);
-}
-
-func assert(condition, text, args)
-{
-    if(condition == false)
+    func info(text, args)
     {
-        error.format(text, args);
+        system_call("Sumi.Log.SumiPrint", null, "info", text, args);
+    }
+
+    func debug(text, args)
+    {
+        system_call("Sumi.Log.SumiPrint", null, "debug", text, args);
+    }
+
+    func warn(text, args)
+    {
+        system_call("Sumi.Log.SumiPrint", null, "warn", text, args);
+    }
+
+    func error(text, args)
+    {
+        system_call("Sumi.Log.SumiError", null, text, args);
+    }
+
+
+    func no_impl()
+    {
+        system_call("Sumi.Log.SumiError", null, "未実装です");
+    }
+
+    func assert(cond, text, args)
+    {
+        if(cond)
+        {
+            return;
+        }
+        system_call("Sumi.Log.SumiError", null, text, args);
     }
 }
 
@@ -213,27 +238,6 @@ class object
     func new()
     {
         return @this;
-    }
-}
-
-
-// ./octopus/sumi/extension/error.ss
-
-class error
-{
-    func log(text)
-    {
-        system_call("Sumi.Lib.Debug.Error", null, text, args);
-    }
-
-    func format(text, args)
-    {
-        log(string.format(text, args));
-    }
-
-    func no_impl()
-    {
-        log("未実装の関数です");
     }
 }
 
@@ -316,14 +320,12 @@ class octopus
 
         func entry(text)
         {
-            log("command: {0}", text);
-
             var split = text.split_once(" ");
             var command_name = split[0];
             var command = command_repo.find_command(command_name);
             if(command == null)
             {
-                log("コマンドが みつかりませんでした:{0}", command_name);
+                log.warn("コマンドが みつかりませんでした:{0}", command_name);
                 return;
             }
             var arg_text = "";
@@ -363,17 +365,17 @@ class octopus
             
             func on_state_began()
             {
-                log("titleに遷移しましたん");
+                log.debug("titleに遷移しましたん");
             }
 
             func on_state_end()
             {
-                log("titleをさりました");
+                log.debug("titleをさりました");
             }
 
             func update()
             {
-                log("titleなう");
+                log.debug("titleなう");
             }
         }
     }
@@ -415,7 +417,7 @@ class octopus
 
             func execute(arg_text)
             {
-                log("[echo]:{0}", arg_text);
+                log.debug("[echo]:{0}", arg_text);
             }
         }
     }
@@ -441,12 +443,12 @@ class octopus
             
             func on_state_began()
             {
-                log("{0}に遷移しました", id);
+                log.debug("{0}に遷移しました", id);
             }
 
             func on_state_end()
             {
-                log("{0}から去りました", id);
+                log.debug("{0}から去りました", id);
             }
 
             func update()
@@ -470,7 +472,7 @@ class octopus
 
             func execute(arg_text)
             {
-                error.no_impl();
+                log.error("未実装");
             }
         }
     }
