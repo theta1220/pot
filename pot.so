@@ -321,6 +321,10 @@ class octopus
         func entry(text)
         {
             var split = text.split_once(" ");
+            if(split.len() == 0)
+            {
+                return;
+            }
             var command_name = split[0];
             var command = command_repo.find_command(command_name);
             if(command == null)
@@ -417,7 +421,7 @@ class octopus
 
             func execute(arg_text)
             {
-                log.debug("[echo]:{0}", arg_text);
+                log.info("[echo]:{0}", arg_text);
             }
         }
     }
