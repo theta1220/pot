@@ -6,7 +6,6 @@ var main = octopus.main.new();
 while(true)
 {
     var command = "";
-    log.info("コマンドを にゅうりょく してください");
     system_call("Pot.Sumi.Input", command);
     if(command == "exit")
     {
@@ -294,9 +293,9 @@ class octopus
     {
         class state_ids : object
         {
-            var title = 1;
-            var field = 2;
-            var battle = 3;
+            var title = "title";
+            var field = "field";
+            var battle = "battle";
         }
 
         var state_ids = state_ids.new();
@@ -315,6 +314,7 @@ class octopus
             // コマンド
             instance.command_repo.register(command.echo.new());
             instance.command_repo.register(command.reload.new());
+            instance.command_repo.register(command.hop.new());
 
             return instance;
         }
@@ -410,6 +410,35 @@ class octopus
 
 // ./octopus/src/system.ss
 
+
+
+// ./octopus/src/command/hop.ss
+
+class octopus
+{
+    class command
+    {
+        class hop : base.command
+        {
+            func new()
+            {
+                var instance = @this;
+                instance.name = "hop";
+                return instance;
+            }
+
+            func execute(arg_text)
+            {
+                if(arg_text == "")
+                {
+                    log.warn("[hop]:移動先を入力してください");
+                    return;
+                }
+                main.state_machine.switch(arg_text);
+            }
+        }
+    }
+}
 
 
 // ./octopus/src/command/echo.ss

@@ -8,6 +8,7 @@ namespace Pot
     {
         public static string Input()
         {
+            Console.Write("> ");
             var text = Console.ReadLine();
             return text;
         }
