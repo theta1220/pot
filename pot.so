@@ -180,11 +180,21 @@ extension string
 
 class string
 {
-    func format(text, args)
+    func format(text, args) : string
     {
         var res = "";
         system_call("Sumi.Lib.String.Format", res, text, args);
         return res;
+    }
+
+    test format()
+    {
+        var text = string.format("{0}.{1}", "hoge", 100);
+        if(text != "hoge.100")
+        {
+            return false;
+        }
+        return true;
     }
 }
 
@@ -231,6 +241,23 @@ class log
 
 
 // ./octopus/sumi/extension/object.ss
+
+extension object
+{
+    func has_value(name) : bool
+    {
+        var res = false;
+        system_call("Sumi.Class.HasValue", res, this, name);
+        return res;
+    }
+
+    func has_func(name) : bool
+    {
+        var res = false;
+        system_call("Sumi.Class.HasFunction", res, this, name);
+        return res;
+    }
+}
 
 class object
 {
@@ -289,34 +316,27 @@ class octopus
 
 class octopus
 {
-    class main : object
+    class main
     {
-        class state_ids : object
-        {
-            var title = "title";
-            var field = "field";
-            var battle = "battle";
-        }
-
-        var state_ids = state_ids.new();
         var state_machine = base.state_machine.new();
         var command_repo = command_repo.new();
 
         func new()
         {
-            var instance = @this;
+            var self = @this;
             
             // ステート
-            instance.state_machine.register(state.title.new(instance.state_ids.title));
-            instance.state_machine.register(state.field.new(instance.state_ids.field));
-            instance.state_machine.register(state.battle.new(instance.state_ids.battle));
+            self.state_machine.register(state.title.new(self));
+            self.state_machine.register(state.field.new(self));
+            self.state_machine.register(state.battle.new(self));
 
             // コマンド
-            instance.command_repo.register(command.echo.new());
-            instance.command_repo.register(command.reload.new());
-            instance.command_repo.register(command.hop.new());
+            self.command_repo.register(command.echo.new());
+            self.command_repo.register(command.reload.new());
+            self.command_repo.register(command.hop.new());
+            self.command_repo.register(command.st.new());
 
-            return instance;
+            return self;
         }
 
         func entry(text)
@@ -357,9 +377,33 @@ class octopus
 {
     class state
     {
-        class battle : base.state
+        class battle
         {
+            var id = "battle";
+            var state_machine = base.state_machine.new();
+            var parent = null;
+
+            func new(parent)
+            {
+                var self = @this;
+                self.parent = parent;
+                return self;
+            }
             
+            func on_state_began()
+            {
+
+            }
+
+            func on_state_end()
+            {
+
+            }
+
+            func update()
+            {
+
+            }
         }
     }
 }
@@ -371,23 +415,33 @@ class octopus
 {
     class state
     {
-        class title : base.state
+        class title
         {
+            var id = "title";
             var state_machine = base.state_machine.new();
+            var parent = null;
+
+            func new(parent)
+            {
+                var self = @this;
+                self.parent = parent;
+                self.state_machine.register(main_menu.new(self));
+                return self;
+            }
             
             func on_state_began()
             {
-                log.debug("titleに遷移しましたん");
+                
             }
 
             func on_state_end()
             {
-                log.debug("titleをさりました");
+
             }
 
             func update()
             {
-                log.debug("titleなう");
+                
             }
         }
     }
@@ -400,12 +454,77 @@ class octopus
 {
     class state
     {
-        class field : base.state
+        class field
         {
+            var id = "field";
+            var state_machine = base.state_machine.new();
+            var parent = null;
+
+            func new(parent)
+            {
+                var self = @this;
+                self.parent = parent;
+                return self;
+            }
+            
+            func on_state_began()
+            {
+                
+            }
+
+            func on_state_end()
+            {
+
+            }
+
+            func update()
+            {
+
+            }
         }
     }
 }
 
+
+
+// ./octopus/src/state/title/main_menu.ss
+
+class octopus
+{
+    class state
+    {
+        class title
+        {
+            class main_menu
+            {
+                var id = "main_menu";
+                var parent = null;
+
+                func new(parent)
+                {
+                    var self = @this;
+                    self.parent = parent;
+                    return self;
+                }
+
+                func on_state_began()
+                {
+
+                }
+
+                func on_state_end()
+                {
+
+                }
+
+                func update()
+                {
+
+                }
+            }
+        }
+    }
+}
 
 
 // ./octopus/src/system.ss
@@ -434,7 +553,25 @@ class octopus
                     log.warn("[hop]:移動先を入力してください");
                     return;
                 }
-                main.state_machine.switch(arg_text);
+                var state_ids = arg_text.split(".");
+                var state_machine = main.state_machine;
+                foreach(id : state_ids)
+                {
+                    if(state_machine.switch(id) == false)
+                    {
+                        log.warn("遷移に失敗しました:{0}", id);
+                        return;
+                    }
+                    log.info("遷移しました:{0}", id);
+                    if(state_machine.current.has_value("state_machine"))
+                    {
+                        state_machine = state_machine.current.state_machine;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
         }
     }
@@ -483,6 +620,46 @@ class octopus
             func execute(arg_text)
             {
                 system_call("Pot.Sumi.Reload", null, arg_text);
+            }
+        }
+    }
+}
+
+
+// ./octopus/src/command/st.ss
+
+class octopus
+{
+    class command
+    {
+        class st
+        {
+            var name = "st";
+
+            func new()
+            {
+                var self = @this;
+                return self;
+            }
+
+            func execute(arg_text)
+            {
+                var state = main.state_machine.current;
+                if(state == null)
+                {
+                    return;
+                }
+                var id = main.state_machine.current.id;
+                while(state.has_value("state_machine"))
+                {
+                    state = state.state_machine.current;
+                    if(state == null)
+                    {
+                        break;
+                    }
+                    id = string.format("{0}.{1}", id, state.id);
+                }
+                log.info("[st]:{0}", id);
             }
         }
     }
@@ -572,13 +749,13 @@ class octopus
                 registered_states.push(state);
             }
 
-            func switch(next_id)
+            func switch(next_id) : bool
             {
                 var next = find_state(next_id);
                 if(next == null)
                 {
                     log.warn("遷移先のステートが見つかりませんでした:{0}", next_id);
-                    return;
+                    return false;
                 }
                 if(current != null)
                 {
@@ -586,6 +763,7 @@ class octopus
                 }
                 current = next;
                 current.on_state_began();
+                return true;
             }
 
             func update()
