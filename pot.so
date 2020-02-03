@@ -314,6 +314,7 @@ class octopus
 
             // コマンド
             instance.command_repo.register(command.echo.new());
+            instance.command_repo.register(command.reload.new());
 
             return instance;
         }
@@ -338,6 +339,13 @@ class octopus
                 arg_text = split[1];
             }
             command.execute(arg_text);
+        }
+
+        test entry()
+        {
+            var main = main.new();
+            main.entry("echo hello octopus.");
+            return true;
         }
     }
 }
@@ -422,6 +430,30 @@ class octopus
             func execute(arg_text)
             {
                 log.info("[echo]:{0}", arg_text);
+            }
+        }
+    }
+}
+
+
+// ./octopus/src/command/reload.ss
+
+class octopus
+{
+    class command
+    {
+        class reload : base.command
+        {
+            func new()
+            {
+                var instance = @this;
+                instance.name = "reload";
+                return instance;
+            }
+
+            func execute(arg_text)
+            {
+                system_call("Pot.Sumi.Reload", null, arg_text);
             }
         }
     }
