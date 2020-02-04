@@ -276,6 +276,17 @@ class octopus
     {
         var commands = [];
 
+        func new()
+        {
+            var self = @this;
+            self.register(command.echo.new());
+            self.register(command.reload.new());
+            self.register(command.hop.new());
+            self.register(command.st.new());
+            self.register(command.newgame.new());
+            return self;
+        }
+
         func register(command)
         {
             commands.push(command);
@@ -312,6 +323,22 @@ class octopus
 }
 
 
+// ./octopus/src/data_repo.ss
+
+class octopus
+{
+    class data_repo
+    {
+        var player = data.player.new();
+
+        func new()
+        {
+            return @this;
+        }
+    }
+}
+
+
 // ./octopus/src/main.ss
 
 class octopus
@@ -320,6 +347,7 @@ class octopus
     {
         var state_machine = base.state_machine.new();
         var command_repo = command_repo.new();
+        var data_repo = data_repo.new();
 
         func new()
         {
@@ -329,12 +357,6 @@ class octopus
             self.state_machine.register(state.title.new(self));
             self.state_machine.register(state.field.new(self));
             self.state_machine.register(state.battle.new(self));
-
-            // コマンド
-            self.command_repo.register(command.echo.new());
-            self.command_repo.register(command.reload.new());
-            self.command_repo.register(command.hop.new());
-            self.command_repo.register(command.st.new());
 
             return self;
         }
@@ -531,6 +553,42 @@ class octopus
 
 
 
+// ./octopus/src/command/newgame.ss
+
+class octopus
+{
+    class command
+    {
+        class newgame
+        {
+            var name = "newgame";
+
+            func new()
+            {
+                return @this;
+            }
+
+            func execute(arg_text)
+            {
+                log.info("[newgame]:新しいプレイヤーデータを作成します");
+                var args = arg_text.split(" ");
+                if(args.len() < 1)
+                {
+                    log.debug("引数が足りない");
+                    return;
+                }
+                var name = args[0];
+                log.info("[newgame]:プレイヤー名：{0}", name);
+                var player = data.player.new();
+                player.name = name;
+                
+                main.data_repo.player = player;
+            }
+        }
+    }
+}
+
+
 // ./octopus/src/command/hop.ss
 
 class octopus
@@ -660,6 +718,25 @@ class octopus
                     id = string.format("{0}.{1}", id, state.id);
                 }
                 log.info("[st]:{0}", id);
+            }
+        }
+    }
+}
+
+
+// ./octopus/src/data/player.ss
+
+class octopus
+{
+    class data
+    {
+        class player
+        {
+            var name = "";
+
+            func new()
+            {
+                return @this;
             }
         }
     }
