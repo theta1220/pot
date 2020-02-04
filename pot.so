@@ -284,6 +284,7 @@ class octopus
             self.register(command.hop.new());
             self.register(command.st.new());
             self.register(command.newgame.new());
+            self.register(command.vl.new());
             return self;
         }
 
@@ -551,6 +552,12 @@ class octopus
 
 // ./octopus/src/system.ss
 
+func value_look(name)
+{
+    var res = null;
+    system_call("Pot.Sumi.ValueLook", res, name);
+    return res;
+}
 
 
 // ./octopus/src/command/newgame.ss
@@ -718,6 +725,41 @@ class octopus
                     id = string.format("{0}.{1}", id, state.id);
                 }
                 log.info("[st]:{0}", id);
+            }
+        }
+    }
+}
+
+
+// ./octopus/src/command/vl.ss
+
+class octopus
+{
+    class command
+    {
+        class vl
+        {
+            var name = "vl";
+
+            func new()
+            {
+                return @this;
+            }
+
+            func execute(arg_text)
+            {
+                if(arg_text == "")
+                {
+                    return;
+                }
+                var name = arg_text;
+                var value = value_look(name);
+                if(value == null)
+                {
+                    log.warn("[vl]:変数が見つかりませんでした:{0}", name);
+                    return;
+                }
+                log.info("[vl]:{0}", value);
             }
         }
     }

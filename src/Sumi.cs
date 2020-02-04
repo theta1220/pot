@@ -20,5 +20,18 @@ namespace Pot
             var fileName = args[0].Object as string;
             Program.Runtime = loader.Load(fileName);
         }
+
+        public static object ValueLook(Value[] args)
+        {
+            Log.Assert(args.Length > 0, "引数が足りません");
+            var name = args[0].Object as string;
+
+            var value = (Program.Runtime as Class).FindValue(name);
+            if (value == null)
+            {
+                return null;
+            }
+            return value.Object;
+        }
     }
 }
