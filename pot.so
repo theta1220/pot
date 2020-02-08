@@ -1,5 +1,4 @@
 
-// ./sumi_src/main.ss
 
 var main = octopus.main.new();
 
@@ -14,543 +13,372 @@ while(true)
     main.entry(command);
 }
 
-
-// ./octopus/sumi/extension/debug.ss
 class debug
 {
-    func print_block_tree(block)
-    {
-        system_call("Sumi.Lib.Debug.PrintBlockTree", null, block);
-    }
-}
 
-
-// ./octopus/sumi/extension/array.ss
-extension array
+func print_block_tree(block)
 {
-    func push(item)
-    {
-        system_call("Sumi.Lib.Array.Push", null, this, item);
-    }
-
-    func pop() : object
-    {
-        if(this.len() == 0)
-        {
-            return null;
-        }
-        var item = this.last();
-        system_call("Sumi.Lib.Array.RemoveAt", null, this, this.len() - 1);
-        return item;
-    }
-
-    func len() : int
-    {
-        var res = 0;
-        system_call("Sumi.Lib.Array.Len", res, this);
-        return res;
-    }
-
-    func first() : object
-    {
-        if(this.len() > 0)
-        {
-            return this[0];
-        }
-        return null;
-    }
-
-    func last() : object
-    {
-        if(this.Len() > 0)
-        {
-            return this[this.len()-1];
-        }
-        return null;
-    }
-
-    func remove(item)
-    {
-        system_call("Sumi.Lib.Array.Remove", null, this, item);
-    }
+    system_call("Sumi.Lib.Debug.PrintBlockTree", null, block);
 }
-
-
-// ./octopus/sumi/extension/string.ss
-extension string
-{
-    func to_array()
-    {
-        var arr = [];
-        system_call("Sumi.Lib.String.ToArray", arr, this);
-        return arr;
-    }
-
-    test to_array()
-    {
-        var text = "hoge";
-        var arr = text.to_array();
-        if (arr.len() == 4)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    func split(sep)
-    {
-        var res = [];
-        var buf = "";
-        foreach(c : this.to_array())
-        {
-            if(c == sep)
-            {
-                res.push(buf);
-                buf = "";
-                continue;
-            }
-            buf = buf + c;
-        }
-        if(buf != "")
-        {
-            res.push(buf);
-        }
-        return res;
-    }
-
-    test split()
-    {
-        var text = "hoge foo bar";
-        var arr = text.split(" ");
-
-        if(arr[0] != "hoge")
-        {
-            return false;
-        }
-        if(arr[1] != "foo")
-        {
-            return false;
-        }
-        if(arr[2] != "bar")
-        {
-            return false;
-        }
-        return true;
-    }
-
-    func split_once(sep)
-    {
-        var res = [];
-        var buf = "";
-        var read_num = 1;
-
-        foreach(c : this.to_array())
-        {
-            if((read_num > res.len()) && (c == sep))
-            {
-                res.push(buf);
-                buf = "";
-                continue;
-            }
-            buf = buf + c;
-        }
-        if(buf != "")
-        {
-            res.push(buf);
-        }
-        return res;
-    }
-
-    test split_once()
-    {
-        var text = "hoge foo bar";
-        var arr = text.split_once(" ");
-
-        if(arr[0] != "hoge")
-        {
-            return false;
-        }
-        if(arr[1] != "foo bar")
-        {
-            return false;
-        }
-        return true;
-    }
 }
 
 class string
 {
-    func format(text, args) : string
-    {
-        var res = "";
-        system_call("Sumi.Lib.String.Format", res, text, args);
-        return res;
-    }
 
-    test format()
-    {
-        var text = string.format("{0}.{1}", "hoge", 100);
-        if(text != "hoge.100")
-        {
-            return false;
-        }
-        return true;
-    }
+func format(text, args) : string
+{
+    var res = "";
+    system_call("Sumi.Lib.String.Format", res, text, args);
+    return res;
 }
 
-
-// ./octopus/sumi/extension/log.ss
+test format()
+{
+    var text = string.format("{0}.{1}", "hoge", 100);
+    if(text != "hoge.100")
+    {
+        return false;
+    }
+    return true;
+}
+}
 
 class log
 {
-    func info(text, args)
-    {
-        system_call("Sumi.Log.SumiPrint", null, "info", text, args);
-    }
 
-    func debug(text, args)
-    {
-        system_call("Sumi.Log.SumiPrint", null, "debug", text, args);
-    }
+func info(text, args)
+{
+    system_call("Sumi.Log.SumiPrint", null, "info", text, args);
+}
 
-    func warn(text, args)
-    {
-        system_call("Sumi.Log.SumiPrint", null, "warn", text, args);
-    }
+func debug(text, args)
+{
+    system_call("Sumi.Log.SumiPrint", null, "debug", text, args);
+}
 
-    func error(text, args)
-    {
-        system_call("Sumi.Log.SumiError", null, text, args);
-    }
+func warn(text, args)
+{
+    system_call("Sumi.Log.SumiPrint", null, "warn", text, args);
+}
 
-
-    func no_impl()
-    {
-        system_call("Sumi.Log.SumiError", null, "未実装です");
-    }
-
-    func assert(cond, text, args)
-    {
-        if(cond)
-        {
-            return;
-        }
-        system_call("Sumi.Log.SumiError", null, text, args);
-    }
+func error(text, args)
+{
+    system_call("Sumi.Log.SumiError", null, text, args);
 }
 
 
-// ./octopus/sumi/extension/object.ss
+func no_impl()
+{
+    system_call("Sumi.Log.SumiError", null, "未実装です");
+}
+
+func assert(cond, text, args)
+{
+    if(cond)
+    {
+        return;
+    }
+    system_call("Sumi.Log.SumiError", null, text, args);
+}
+}
+
+extension array
+{
+
+func push(item)
+{
+    system_call("Sumi.Lib.Array.Push", null, this, item);
+}
+
+func pop() : object
+{
+    if(this.len() == 0)
+    {
+        return null;
+    }
+    var item = this.last();
+    system_call("Sumi.Lib.Array.RemoveAt", null, this, this.len() - 1);
+    return item;
+}
+
+func len() : int
+{
+    var res = 0;
+    system_call("Sumi.Lib.Array.Len", res, this);
+    return res;
+}
+
+func first() : object
+{
+    if(this.len() > 0)
+    {
+        return this[0];
+    }
+    return null;
+}
+
+func last() : object
+{
+    if(this.Len() > 0)
+    {
+        return this[this.len()-1];
+    }
+    return null;
+}
+
+func remove(item)
+{
+    system_call("Sumi.Lib.Array.Remove", null, this, item);
+}
+}
+
+extension string
+{
+
+func to_array()
+{
+    var arr = [];
+    system_call("Sumi.Lib.String.ToArray", arr, this);
+    return arr;
+}
+
+test to_array()
+{
+    var text = "hoge";
+    var arr = text.to_array();
+    if (arr.len() == 4)
+    {
+        return true;
+    }
+    return false;
+}
+
+func split(sep)
+{
+    var res = [];
+    var buf = "";
+    foreach(c : this.to_array())
+    {
+        if(c == sep)
+        {
+            res.push(buf);
+            buf = "";
+            continue;
+        }
+        buf = buf + c;
+    }
+    if(buf != "")
+    {
+        res.push(buf);
+    }
+    return res;
+}
+
+test split()
+{
+    var text = "hoge foo bar";
+    var arr = text.split(" ");
+
+    if(arr[0] != "hoge")
+    {
+        return false;
+    }
+    if(arr[1] != "foo")
+    {
+        return false;
+    }
+    if(arr[2] != "bar")
+    {
+        return false;
+    }
+    return true;
+}
+
+func split_once(sep)
+{
+    var res = [];
+    var buf = "";
+    var read_num = 1;
+
+    foreach(c : this.to_array())
+    {
+        if((read_num > res.len()) && (c == sep))
+        {
+            res.push(buf);
+            buf = "";
+            continue;
+        }
+        buf = buf + c;
+    }
+    if(buf != "")
+    {
+        res.push(buf);
+    }
+    return res;
+}
+
+test split_once()
+{
+    var text = "hoge foo bar";
+    var arr = text.split_once(" ");
+
+    if(arr[0] != "hoge")
+    {
+        return false;
+    }
+    if(arr[1] != "foo bar")
+    {
+        return false;
+    }
+    return true;
+}
+}
 
 extension object
 {
-    func has_value(name) : bool
-    {
-        var res = false;
-        system_call("Sumi.Class.HasValue", res, this, name);
-        return res;
-    }
 
-    func has_func(name) : bool
-    {
-        var res = false;
-        system_call("Sumi.Class.HasFunction", res, this, name);
-        return res;
-    }
-}
-
-class object
+func has_value(name) : bool
 {
-    func new()
-    {
-        return @this;
-    }
+    var res = false;
+    system_call("Sumi.Class.HasValue", res, this, name);
+    return res;
 }
 
-
-// ./octopus/src/command_repo.ss
+func has_func(name) : bool
+{
+    var res = false;
+    system_call("Sumi.Class.HasFunction", res, this, name);
+    return res;
+}
+}
 
 class octopus
 {
-    class command_repo : object
-    {
-        var commands = [];
+class command_repo
+{
 
-        func new()
-        {
-            var self = @this;
-            self.register(command.echo.new());
-            self.register(command.reload.new());
-            self.register(command.hop.new());
-            self.register(command.st.new());
-            self.register(command.newgame.new());
-            self.register(command.vl.new());
-            return self;
-        }
+var commands = [];
 
-        func register(command)
-        {
-            commands.push(command);
-        }
-
-        func find_command(name)
-        {
-            foreach(command : commands)
-            {
-                if(command.name == name)
-                {
-                    return command;
-                }
-            }
-            return null;
-        }
-
-        test find_command()
-        {
-            var repo = command_repo.new();
-            repo.register(command.echo.new());
-
-            if(repo.find_command("hoge") != null)
-            {
-                return false;
-            }
-            if(repo.find_command("echo") == null)
-            {
-                return false;
-            }
-            return true;
-        }
-    }
+func new()
+{
+    var self = @this;
+    self.register(command.echo.new());
+    self.register(command.reload.new());
+    self.register(command.hop.new());
+    self.register(command.st.new());
+    self.register(command.newgame.new());
+    self.register(command.vl.new());
+    return self;
 }
 
+func register(command)
+{
+    commands.push(command);
+}
 
-// ./octopus/src/data_repo.ss
+func find_command(name)
+{
+    foreach(command : commands)
+    {
+        if(command.name == name)
+        {
+            return command;
+        }
+    }
+    return null;
+}
+
+test find_command()
+{
+    var repo = command_repo.new();
+    repo.register(command.echo.new());
+
+    if(repo.find_command("hoge") != null)
+    {
+        return false;
+    }
+    if(repo.find_command("echo") == null)
+    {
+        return false;
+    }
+    return true;
+}
+}
+
+}
 
 class octopus
 {
-    class data_repo
-    {
-        var player = data.player.new();
+class data_repo
+{
 
-        func new()
-        {
-            return @this;
-        }
-    }
+var player = data.player.new();
+
+func new()
+{
+    return @this;
+}
 }
 
-
-// ./octopus/src/main.ss
+}
 
 class octopus
 {
-    class main
-    {
-        var state_machine = base.state_machine.new();
-        var command_repo = command_repo.new();
-        var data_repo = data_repo.new();
+class main
+{
 
-        func new()
-        {
-            var self = @this;
-            
-            // ステート
-            self.state_machine.register(state.title.new(self));
-            self.state_machine.register(state.field.new(self));
-            self.state_machine.register(state.battle.new(self));
+var state_machine = base.state_machine.new();
+var command_repo = command_repo.new();
+var data_repo = data_repo.new();
 
-            return self;
-        }
+func new()
+{
+    var self = @this;
+    
+    // ステート
+    self.state_machine.register(state.title.new(self));
+    self.state_machine.register(state.field.new(self));
+    self.state_machine.register(state.battle.new(self));
 
-        func entry(text)
-        {
-            var split = text.split_once(" ");
-            if(split.len() == 0)
-            {
-                return;
-            }
-            var command_name = split[0];
-            var command = command_repo.find_command(command_name);
-            if(command == null)
-            {
-                log.warn("コマンドが みつかりませんでした:{0}", command_name);
-                return;
-            }
-            var arg_text = "";
-            if(split.len() > 1)
-            {
-                arg_text = split[1];
-            }
-            command.execute(arg_text);
-        }
-
-        test entry()
-        {
-            var main = main.new();
-            main.entry("echo hello octopus.");
-            return true;
-        }
-    }
+    return self;
 }
 
+func entry(text)
+{
+    var split = text.split_once(" ");
+    if(split.len() == 0)
+    {
+        return;
+    }
+    var command_name = split[0];
+    var command = command_repo.find_command(command_name);
+    if(command == null)
+    {
+        log.warn("コマンドが みつかりませんでした:{0}", command_name);
+        return;
+    }
+    var arg_text = "";
+    if(split.len() > 1)
+    {
+        arg_text = split[1];
+    }
+    command.execute(arg_text);
+}
 
-// ./octopus/src/state/title/battle.ss
+test entry()
+{
+    var main = main.new();
+    main.entry("echo hello octopus.");
+    return true;
+}
+}
+
+}
 
 class octopus
 {
-    class state
-    {
-        class battle
-        {
-            var id = "battle";
-            var state_machine = base.state_machine.new();
-            var parent = null;
-
-            func new(parent)
-            {
-                var self = @this;
-                self.parent = parent;
-                return self;
-            }
-            
-            func on_state_began()
-            {
-
-            }
-
-            func on_state_end()
-            {
-
-            }
-
-            func update()
-            {
-
-            }
-        }
-    }
-}
-
-
-// ./octopus/src/state/title/title.ss
-
-class octopus
+class system
 {
-    class state
-    {
-        class title
-        {
-            var id = "title";
-            var state_machine = base.state_machine.new();
-            var parent = null;
-
-            func new(parent)
-            {
-                var self = @this;
-                self.parent = parent;
-                self.state_machine.register(main_menu.new(self));
-                return self;
-            }
-            
-            func on_state_began()
-            {
-                
-            }
-
-            func on_state_end()
-            {
-
-            }
-
-            func update()
-            {
-                
-            }
-        }
-    }
-}
-
-
-// ./octopus/src/state/title/field.ss
-
-class octopus
-{
-    class state
-    {
-        class field
-        {
-            var id = "field";
-            var state_machine = base.state_machine.new();
-            var parent = null;
-
-            func new(parent)
-            {
-                var self = @this;
-                self.parent = parent;
-                return self;
-            }
-            
-            func on_state_began()
-            {
-                
-            }
-
-            func on_state_end()
-            {
-
-            }
-
-            func update()
-            {
-
-            }
-        }
-    }
-}
-
-
-
-// ./octopus/src/state/title/main_menu.ss
-
-class octopus
-{
-    class state
-    {
-        class title
-        {
-            class main_menu
-            {
-                var id = "main_menu";
-                var parent = null;
-
-                func new(parent)
-                {
-                    var self = @this;
-                    self.parent = parent;
-                    return self;
-                }
-
-                func on_state_began()
-                {
-
-                }
-
-                func on_state_end()
-                {
-
-                }
-
-                func update()
-                {
-
-                }
-            }
-        }
-    }
-}
-
-
-// ./octopus/src/system.ss
 
 func value_look(name)
 {
@@ -558,339 +386,481 @@ func value_look(name)
     system_call("Pot.Sumi.ValueLook", res, name);
     return res;
 }
+}
 
-
-// ./octopus/src/command/newgame.ss
+}
 
 class octopus
 {
-    class command
-    {
-        class newgame
-        {
-            var name = "newgame";
+class state
+{
+class battle
+{
 
-            func new()
-            {
-                return @this;
-            }
+var id = "battle";
+var state_machine = base.state_machine.new();
+var parent = null;
 
-            func execute(arg_text)
-            {
-                log.info("[newgame]:新しいプレイヤーデータを作成します");
-                var args = arg_text.split(" ");
-                if(args.len() < 1)
-                {
-                    log.debug("引数が足りない");
-                    return;
-                }
-                var name = args[0];
-                log.info("[newgame]:プレイヤー名：{0}", name);
-                var player = data.player.new();
-                player.name = name;
-                
-                main.data_repo.player = player;
-            }
-        }
-    }
+func new(parent)
+{
+    var self = @this;
+    self.parent = parent;
+    return self;
 }
 
+func on_state_began()
+{
 
-// ./octopus/src/command/hop.ss
+}
+
+func on_state_end()
+{
+
+}
+
+func update()
+{
+
+}
+}
+
+}
+
+}
 
 class octopus
 {
-    class command
-    {
-        class hop : base.command
-        {
-            func new()
-            {
-                var instance = @this;
-                instance.name = "hop";
-                return instance;
-            }
+class state
+{
+class title
+{
 
-            func execute(arg_text)
-            {
-                if(arg_text == "")
-                {
-                    log.warn("[hop]:移動先を入力してください");
-                    return;
-                }
-                var state_ids = arg_text.split(".");
-                var state_machine = main.state_machine;
-                foreach(id : state_ids)
-                {
-                    if(state_machine.switch(id) == false)
-                    {
-                        log.warn("遷移に失敗しました:{0}", id);
-                        return;
-                    }
-                    log.info("遷移しました:{0}", id);
-                    if(state_machine.current.has_value("state_machine"))
-                    {
-                        state_machine = state_machine.current.state_machine;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-    }
+var id = "title";
+var state_machine = base.state_machine.new();
+var parent = null;
+
+func new(parent)
+{
+    var self = @this;
+    self.parent = parent;
+    self.state_machine.register(main_menu.new(self));
+    return self;
 }
 
+func on_state_began()
+{
+    
+}
 
-// ./octopus/src/command/echo.ss
+func on_state_end()
+{
+
+}
+
+func update()
+{
+    
+}
+}
+
+}
+
+}
 
 class octopus
 {
-    class command
-    {
-        class echo : base.command
-        {
-            func new()
-            {
-                var instance = @this;
-                instance.name = "echo";
-                return instance;
-            }
+class state
+{
+class field
+{
 
-            func execute(arg_text)
-            {
-                log.info("[echo]:{0}", arg_text);
-            }
-        }
-    }
+var id = "field";
+var state_machine = base.state_machine.new();
+var parent = null;
+
+func new(parent)
+{
+    var self = @this;
+    self.parent = parent;
+    return self;
 }
 
+func on_state_began()
+{
+    
+}
 
-// ./octopus/src/command/reload.ss
+func on_state_end()
+{
+
+}
+
+func update()
+{
+
+}
+}
+
+}
+
+}
 
 class octopus
 {
-    class command
-    {
-        class reload : base.command
-        {
-            func new()
-            {
-                var instance = @this;
-                instance.name = "reload";
-                return instance;
-            }
+class command
+{
+class newgame
+{
 
-            func execute(arg_text)
-            {
-                system_call("Pot.Sumi.Reload", null, arg_text);
-            }
-        }
-    }
+var name = "newgame";
+
+func new()
+{
+    return @this;
 }
 
+func execute(arg_text)
+{
+    log.info("[newgame]:新しいプレイヤーデータを作成します");
+    var args = arg_text.split(" ");
+    if(args.len() < 1)
+    {
+        log.debug("引数が足りない");
+        return;
+    }
+    var name = args[0];
+    log.info("[newgame]:プレイヤー名：{0}", name);
+    var player = data.player.new();
+    player.name = name;
+    
+    main.data_repo.player = player;
+}
+}
 
-// ./octopus/src/command/st.ss
+}
+
+}
 
 class octopus
 {
-    class command
+class command
+{
+class hop
+{
+var name = "hop";
+
+func new()
+{
+    return @this;
+}
+
+func execute(arg_text)
+{
+    if(arg_text == "")
     {
-        class st
+        log.warn("[hop]:移動先を入力してください");
+        return;
+    }
+    var state_ids = arg_text.split(".");
+    var state_machine = main.state_machine;
+    foreach(id : state_ids)
+    {
+        if(state_machine.switch(id) == false)
         {
-            var name = "st";
-
-            func new()
-            {
-                var self = @this;
-                return self;
-            }
-
-            func execute(arg_text)
-            {
-                var state = main.state_machine.current;
-                if(state == null)
-                {
-                    return;
-                }
-                var id = main.state_machine.current.id;
-                while(state.has_value("state_machine"))
-                {
-                    state = state.state_machine.current;
-                    if(state == null)
-                    {
-                        break;
-                    }
-                    id = string.format("{0}.{1}", id, state.id);
-                }
-                log.info("[st]:{0}", id);
-            }
+            log.warn("遷移に失敗しました:{0}", id);
+            return;
+        }
+        log.info("遷移しました:{0}", id);
+        if(state_machine.current.has_value("state_machine"))
+        {
+            state_machine = state_machine.current.state_machine;
+        }
+        else
+        {
+            break;
         }
     }
 }
+}
 
+}
 
-// ./octopus/src/command/vl.ss
+}
 
 class octopus
 {
-    class command
-    {
-        class vl
-        {
-            var name = "vl";
+class command
+{
+class echo
+{
 
-            func new()
-            {
-                return @this;
-            }
+var name = "echo";
 
-            func execute(arg_text)
-            {
-                if(arg_text == "")
-                {
-                    return;
-                }
-                var name = arg_text;
-                var value = value_look(name);
-                if(value == null)
-                {
-                    log.warn("[vl]:変数が見つかりませんでした:{0}", name);
-                    return;
-                }
-                log.info("[vl]:{0}", value);
-            }
-        }
-    }
+func new()
+{
+    return @this;
 }
 
+func execute(arg_text)
+{
+    log.info("[echo]:{0}", arg_text);
+}
+}
 
-// ./octopus/src/data/player.ss
+}
+
+}
 
 class octopus
 {
-    class data
-    {
-        class player
-        {
-            var name = "";
+class command
+{
+class reload
+{
 
-            func new()
-            {
-                return @this;
-            }
-        }
-    }
+var name = "reload";
+
+func new()
+{
+    return @this;
 }
 
+func execute(arg_text)
+{
+    system_call("Pot.Sumi.Reload", null, arg_text);
+}
+}
 
-// ./octopus/src/base/state.ss
+}
+
+}
 
 class octopus
 {
-    class base
-    {
-        class state : object
-        {
-            var id = null;
+class command
+{
+class st
+{
 
-            func new(id)
-            {
-                var instance = @this;
-                instance.id = id;
-                return instance;
-            }
-            
-            func on_state_began()
-            {
-                log.debug("{0}に遷移しました", id);
-            }
+var name = "st";
 
-            func on_state_end()
-            {
-                log.debug("{0}から去りました", id);
-            }
-
-            func update()
-            {
-
-            }
-        }
-    }
+func new()
+{
+    return @this;
 }
 
+func execute(arg_text)
+{
+    var state = main.state_machine.current;
+    if(state == null)
+    {
+        return;
+    }
+    var id = main.state_machine.current.id;
+    while(state.has_value("state_machine"))
+    {
+        state = state.state_machine.current;
+        if(state == null)
+        {
+            break;
+        }
+        id = string.format("{0}.{1}", id, state.id);
+    }
+    log.info("[st]:{0}", id);
+}
+}
 
-// ./octopus/src/base/command.ss
+}
+
+}
 
 class octopus
 {
-    class base
-    {
-        class command
-        {
-            var name = "";
+class command
+{
+class vl
+{
 
-            func execute(arg_text)
-            {
-                log.error("未実装");
-            }
-        }
-    }
+var name = "vl";
+
+func new()
+{
+    return @this;
 }
 
+func execute(arg_text)
+{
+    if(arg_text == "")
+    {
+        return;
+    }
+    var name = arg_text;
+    var value = system.value_look(name);
+    if(value == null)
+    {
+        log.warn("[vl]:変数が見つかりませんでした:{0}", name);
+        return;
+    }
+    log.info("[vl]:{0}", value);
+}
+}
 
-// ./octopus/src/base/state_machine.ss
+}
+
+}
 
 class octopus
 {
-    class base
-    {
-        class state_machine : object
-        {
-            var current = null;
-            var registered_states = [];
+class data
+{
+class player
+{
 
-            func find_state(id)
-            {
-                foreach(state : registered_states)
-                {
-                    if(state.id == id)
-                    {
-                        return state;
-                    }
-                }
-                return null;
-            }
+var name = "";
 
-            func register(state)
-            {
-                registered_states.push(state);
-            }
-
-            func switch(next_id) : bool
-            {
-                var next = find_state(next_id);
-                if(next == null)
-                {
-                    log.warn("遷移先のステートが見つかりませんでした:{0}", next_id);
-                    return false;
-                }
-                if(current != null)
-                {
-                    current.on_state_end();
-                }
-                current = next;
-                current.on_state_began();
-                return true;
-            }
-
-            func update()
-            {
-                current.update();
-            }
-        }
-    }
+func new()
+{
+    return @this;
+}
 }
 
+}
+
+}
+
+class octopus
+{
+class base
+{
+class state
+{
+
+var id = null;
+
+func new(id)
+{
+    var instance = @this;
+    instance.id = id;
+    return instance;
+}
+
+func on_state_began()
+{
+    log.debug("{0}に遷移しました", id);
+}
+
+func on_state_end()
+{
+    log.debug("{0}から去りました", id);
+}
+
+func update()
+{
+
+}
+}
+
+}
+
+}
+
+class octopus
+{
+class base
+{
+class state_machine
+{
+
+var current = null;
+var registered_states = [];
+
+func new()
+{
+    return @this;
+}
+
+func find_state(id)
+{
+    foreach(state : registered_states)
+    {
+        if(state.id == id)
+        {
+            return state;
+        }
+    }
+    return null;
+}
+
+func register(state)
+{
+    registered_states.push(state);
+}
+
+func switch(next_id) : bool
+{
+    var next = find_state(next_id);
+    if(next == null)
+    {
+        log.warn("遷移先のステートが見つかりませんでした:{0}", next_id);
+        return false;
+    }
+    if(current != null)
+    {
+        current.on_state_end();
+    }
+    current = next;
+    current.on_state_began();
+    return true;
+}
+
+func update()
+{
+    current.update();
+}
+}
+
+}
+
+}
+
+class octopus
+{
+class state
+{
+class title
+{
+class main_menu
+{
+
+var id = "main_menu";
+var parent = null;
+
+func new(parent)
+{
+    var self = @this;
+    self.parent = parent;
+    return self;
+}
+
+func on_state_began()
+{
+
+}
+
+func on_state_end()
+{
+
+}
+
+func update()
+{
+
+}
+}
+
+}
+
+}
+
+}
 
