@@ -1,3 +1,6 @@
 [submodule "sumi"]
 	path = sumi
 	url = git@github.com:theta1220/sumi.git
+[submodule "sumi_src/octopus"]
+	path = sumi_src/octopus
+	url = git@github.com:theta1220/octopus.git
