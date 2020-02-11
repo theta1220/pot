@@ -1,4 +1,7 @@
 
+#def UNITY
+// #def CONSOLE
+
 var main = octopus.main.new();
 
 while(true)

@@ -13,7 +13,8 @@ namespace Pot
             Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
 
             var loader = new Loader();
-            Runtime = loader.Load("pot.so");
+            var source = File.Open("pot.so");
+            Runtime = loader.Load("pot.so", source);
 
             try
             {

@@ -1,5 +1,7 @@
 
 
+// #def UNITY
+
 var main = octopus.main.new();
 
 while(true)
@@ -48,6 +50,7 @@ class log
 
 func info(text, args)
 {
+
     system_call("Sumi.Log.SumiPrint", null, "info", text, args);
 }
 
@@ -392,6 +395,42 @@ func value_look(name)
 
 class octopus
 {
+class util
+{
+class file
+{
+
+func read(file_name)
+{
+    
+}
+}
+
+}
+
+}
+
+class octopus
+{
+class util
+{
+class json
+{
+
+func load(file_name)
+{
+    var json_text = util.file.read(file_name);
+
+    
+}
+}
+
+}
+
+}
+
+class octopus
+{
 class state
 {
 class battle
@@ -627,7 +666,9 @@ func new()
 
 func execute(arg_text)
 {
-    system_call("Pot.Sumi.Reload", null, arg_text);
+    var source = "";
+    system_call("Pot.Sumi.FileOpen", source, arg_text);
+    system_call("Pot.Sumi.Reload", null, arg_text, source);
 }
 }
 
@@ -863,4 +904,6 @@ func update()
 }
 
 }
+
+
 
