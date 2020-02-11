@@ -2,7 +2,7 @@
 func format(text, args) : string
 {
     var res = "";
-    system_call("Sumi.Lib.String.Format", res, text, args);
+    system_call("Sumi.Lib.String.Format", null, res, text, args);
     return res;
 }
 

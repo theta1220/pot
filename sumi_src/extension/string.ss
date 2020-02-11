@@ -2,7 +2,7 @@
 func to_array()
 {
     var arr = [];
-    system_call("Sumi.Lib.String.ToArray", arr, this);
+    system_call("Sumi.Lib.String.ToArray", null, arr, this);
     return arr;
 }
 

@@ -1,7 +1,7 @@
 
 func push(item)
 {
-    system_call("Sumi.Lib.Array.Push", null, this, item);
+    system_call("Sumi.Lib.Array.Push", null, null, this, item);
 }
 
 func pop() : object
@@ -11,14 +11,14 @@ func pop() : object
         return null;
     }
     var item = this.last();
-    system_call("Sumi.Lib.Array.RemoveAt", null, this, this.len() - 1);
+    system_call("Sumi.Lib.Array.RemoveAt", null, null, this, this.len() - 1);
     return item;
 }
 
 func len() : int
 {
     var res = 0;
-    system_call("Sumi.Lib.Array.Len", res, this);
+    system_call("Sumi.Lib.Array.Len", null, res, this);
     return res;
 }
 
@@ -42,5 +42,5 @@ func last() : object
 
 func remove(item)
 {
-    system_call("Sumi.Lib.Array.Remove", null, this, item);
+    system_call("Sumi.Lib.Array.Remove", null, null, this, item);
 }
